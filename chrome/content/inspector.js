@@ -109,7 +109,9 @@ var gICSInspector = {
   },
 
   getSelectedEvent: function II_getSelectedEvent() {
-    return currentView().getSelectedItems({})[0];
+    var view = currentView();
+    var items = view && view.getSelectedItems({});
+    return items ? items[0] : null;
   },
 
   getSelectedTask: function II_getSelectedTask() {
