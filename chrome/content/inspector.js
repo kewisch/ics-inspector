@@ -1,43 +1,21 @@
-/* ***** BEGIN LICENSE BLOCK *****
- * Version: MPL 1.1/GPL 2.0/LGPL 2.1
- *
- * The contents of this file are subject to the Mozilla Public License Version
- * 1.1 (the "License"); you may not use this file except in compliance with
- * the License. You may obtain a copy of the License at
- * http://www.mozilla.org/MPL/
- *
- * Software distributed under the License is distributed on an "AS IS" basis,
- * WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
- * for the specific language governing rights and limitations under the
- * License.
- *
- * The Original Code is Sun Microsystems code.
- *
- * The Initial Developer of the Original Code is
- *   Philipp Kewisch <mozilla@kewis.ch>
- * Portions created by the Initial Developer are Copyright (C) 2008
- * the Initial Developer. All Rights Reserved.
- *
- * Contributor(s):
- *
- * Alternatively, the contents of this file may be used under the terms of
- * either the GNU General Public License Version 2 or later (the "GPL"), or
- * the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
- * in which case the provisions of the GPL or the LGPL are applicable instead
- * of those above. If you wish to allow use of your version of this file only
- * under the terms of either the GPL or the LGPL, and not to allow others to
- * use your version of this file under the terms of the MPL, indicate your
- * decision by deleting the provisions above and replace them with the notice
- * and other provisions required by the GPL or the LGPL. If you do not delete
- * the provisions above, a recipient may use your version of this file under
- * the terms of any one of the MPL, the GPL or the LGPL.
- *
- * ***** END LICENSE BLOCK ***** */
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * Portions Copyright (C) Philipp Kewisch, 2008-2013 */
+
+Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
 var gICSInspector = {
   getString: function II_getString(aStringName, aParams) {
     return calGetString("inspector", aStringName, aParams, "ics-inspector");
   },
+
+  flushPrefs: function II_flushPrefs() {
+    Components.classes["@mozilla.org/preferences-service;1"]
+              .getService(Components.interfaces.nsIPrefService)
+              .savePrefFile(null);
+  },
+
   inspectEvent: function II_inspectEvent() {
     var selectedItem = this.getSelectedEvent();
     if (selectedItem) {
@@ -179,7 +157,6 @@ var gICSInspector = {
           calendar = calendarList.getCalendarFromEvent(event, col, row);
       }
 
-
       gICSInspector._enableOrDisableItem("ics-inspector-inspect-calendar", calendar);
       gICSInspector._enableOrDisableItem("ics-inspector-evaluate-calendar", calendar);
       gICSInspector._enableOrDisableItem("ics-inspector-cached-resetlog",
@@ -202,15 +179,107 @@ var gICSInspector = {
 
   setDebugLog: function II_setDebugLog(event, verbose) {
     var pref = "calendar.debug.log" + (verbose ? ".verbose" : "");
-   
-    // No direct way to differ here, but 0.9 had an isBranch() function
-    if (typeof isBranch != "undefined") {
-      // 0.9
-      setPref(pref, 'BOOL', event.target.getAttribute("checked") == "true");
-    } else {
-      // trunk
-      setPref(pref, event.target.getAttribute("checked") == "true");
+    cal.setPref(pref, event.target.getAttribute("checked") == "true");
+  },
+
+  calendarListTreeView: {
+    cycleCell: function cycleCell(aRow, aCol) {
+      var calendar = this.getCalendar(aRow);
+      var composite = this.compositeCalendar;
+
+      switch (aCol.element.getAttribute("anonid")) {
+        case "status-treecol":
+          calendar.readOnly = !calendar.readOnly;
+          break;
+        case "cache-treecol":
+          var newValue = !calendar.getProperty("cache.enabled");
+          calendar.setProperty("cache.enabled", newValue);
+          break;
+      }
+      this.treebox.invalidateRow(aRow);
+
+      return gICSInspector.calendarListTreeView.originals.cycleCell.call(this, aRow, aCol);
+    },
+
+    getRowProperties: function getRowProperties(aRow, aProps)  {
+      let calendar = this.getCalendar(aRow);
+      let composite = this.compositeCalendar;
+      let props = []
+
+      if (calendar.getProperty("requiresNetwork")) {
+        props.push("requiresNetwork");
+      }
+
+      if (calendar.getProperty("cache.enabled")) {
+        props.push("cached");
+      }
+
+      if (aProps) {
+        props.map(cal.getAtomFromService).forEach(aProps.AppendElement, aProps);
+        return gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow, aProps);
+      } else {
+        props.push(gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow, aProps));
+        return props.join(" ");
+      }
+    },
+  },
+
+
+  loadCalendarListExtensions: function II_loadCalendarListExtensions() {
+    let tree = document.getElementById("calendar-list-tree-widget");
+    function getCol(x) document.getAnonymousElementByAttribute(tree, "anonid", x);
+
+    let statusTreecol = getCol("status-treecol");
+    let networkTreecol = createXULElement("treecol");
+    let calendarnameTreecol = getCol("calendarname-treecol");
+    let cacheTreecol = createXULElement("treecol");
+    let scrollbarSpacer = getCol("scrollbar-spacer");
+
+    // Show the column picker
+    getCol("tree").removeAttribute("hidecolumnpicker");
+    getCol("treecols").removeAttribute("hideheader");
+
+    // Get the base ordinal to start icons after
+    let ordinal = calendarnameTreecol.getAttribute("ordinal");
+
+    // Add a column for requiresNetwork
+    networkTreecol.setAttribute("anonid", "network-treecol");
+    networkTreecol.setAttribute("hideheader", "true");
+    networkTreecol.setAttribute("width", "20");
+    networkTreecol.setAttribute("label", gICSInspector.getString("calendarTree.column.requiresNetwork"));
+    networkTreecol.setAttribute("ordinal", ++ordinal);
+    statusTreecol.parentNode.insertBefore(networkTreecol, statusTreecol);
+
+    // Add a column for cache 
+    cacheTreecol.setAttribute("anonid", "cache-treecol");
+    cacheTreecol.setAttribute("hideheader", "true");
+    cacheTreecol.setAttribute("width", "18");
+    cacheTreecol.setAttribute("cycler", "true");
+    cacheTreecol.setAttribute("label", gICSInspector.getString("calendarTree.column.cache"));
+    cacheTreecol.setAttribute("ordinal", ++ordinal);
+    statusTreecol.parentNode.insertBefore(cacheTreecol, statusTreecol);
+
+    // Set up the cycler on the readOnly column
+    statusTreecol.setAttribute("label", gICSInspector.getString("calendarTree.column.status"));
+    statusTreecol.setAttribute("cycler", "true");
+    statusTreecol.setAttribute("ordinal", ++ordinal);
+
+    // Make sure the ordinal is correct for the spacer
+    scrollbarSpacer.setAttribute("ordinal", ++ordinal);
+    scrollbarSpacer.setAttribute("label", gICSInspector.getString("calendarTree.column.spacer"));
+
+    // Add labels for remaining columns
+    getCol("checkbox-treecol").setAttribute("label", gICSInspector.getString("calendarTree.column.checkbox"));
+    getCol("color-treecol").setAttribute("label", gICSInspector.getString("calendarTree.column.color"));
+
+    // Inject our view functions as defined in the object above
+    let listView = gICSInspector.calendarListTreeView;
+    let originals = {};
+    for (let prop in listView) {
+        originals[prop] = tree[prop];
+        tree[prop] = listView[prop];
     }
+    listView.originals = originals;
   },
 
   load: function II_load() {
@@ -243,6 +312,8 @@ var gICSInspector = {
     if (getPrefSafe("calendar.debug.log.verbose", false)) {
       document.getElementById("ics-inspector-debug-log-verbose").setAttribute("checked", "true");
     }
+
+    gICSInspector.loadCalendarListExtensions();
   },
 
   unload: function II_unload() {
@@ -289,7 +360,6 @@ var gICSInspector = {
     }
   }
 };
-
 
 window.addEventListener("load", gICSInspector.load, false);
 window.addEventListener("unload", gICSInspector.unload, false);

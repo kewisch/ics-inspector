@@ -1,0 +1,15 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this file,
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
+ * Portions Copyright (C) Philipp Kewisch, 2012 */
+
+#calendar-list-tree-widget > tree > treechildren::-moz-tree-image(network-treecol, requiresNetwork) {
+  list-style-image: url("chrome://messenger/skin/icons/online.png");
+}
+#calendar-list-tree-widget > tree > treechildren::-moz-tree-image(cache-treecol, cached) {
+  list-style-image: url("chrome://ics-inspector/skin/database.png");
+}
+
+#calendar-list-tree-widget > tree > treecols {
+    background: -moz-linear-gradient(to top, #e1e1e1, #ffffff);
+}

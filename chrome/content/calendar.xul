@@ -1,47 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- ***** BEGIN LICENSE BLOCK *****
-   - Version: MPL 1.1/GPL 2.0/LGPL 2.1
-   -
-   - The contents of this file are subject to the Mozilla Public License Version
-   - 1.1 (the "License"); you may not use this file except in compliance with
-   - the License. You may obtain a copy of the License at
-   - http://www.mozilla.org/MPL/
-   -
-   - Software distributed under the License is distributed on an "AS IS" basis,
-   - WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
-   - for the specific language governing rights and limitations under the
-   - License.
-   -
-   - The Original Code is Sun Microsystems code.
-   -
-   - The Initial Developer of the Original Code is
-   -   Philipp Kewisch <mozilla@kewis.ch>
-   - Portions created by the Initial Developer are Copyright (C) 2008
-   - the Initial Developer. All Rights Reserved.
-   -
-   - Contributor(s):
-   -
-   - Alternatively, the contents of this file may be used under the terms of
-   - either the GNU General Public License Version 2 or later (the "GPL"), or
-   - the GNU Lesser General Public License Version 2.1 or later (the "LGPL"),
-   - in which case the provisions of the GPL or the LGPL are applicable instead
-   - of those above. If you wish to allow use of your version of this file only
-   - under the terms of either the GPL or the LGPL, and not to allow others to
-   - use your version of this file under the terms of the MPL, indicate your
-   - decision by deleting the provisions above and replace them with the notice
-   - and other provisions required by the LGPL or the GPL. If you do not delete
-   - the provisions above, a recipient may use your version of this file under
-   - the terms of any one of the MPL, the GPL or the LGPL.
-   -
-   - ***** END LICENSE BLOCK ***** -->
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/.
+   - Portions Copyright (C) Philipp Kewisch, 2008 -->
 
+<?xml-stylesheet href="chrome://ics-inspector/skin/inspector.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://ics-inspector/locale/inspector.dtd">
 
-<overlay id="calendar-list-overlay"
+<overlay id="ics-inspector-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-  <script type="application/x-javascript" src="chrome://ics-inspector/content/inspector.js"/>
+  <script type="application/javascript" src="chrome://ics-inspector/content/inspector.js"/>
 
-  <popup id="calendar-item-context-menu">
+  <menupopup id="calendar-item-context-menu">
     <menuseparator id="ics-inspector-separator"/>
     <menuitem id="ics-inspector-item-inspect-event"
               label="&ics-inspector.context.inspect.label;"
@@ -53,7 +23,7 @@
     <menuitem id="ics-inspector-item-alarmdialog"
               label="&ics-inspector.context.alarmdialog.label;"
               oncommand="gICSInspector.openAlarmDialog()"/>
-  </popup>
+  </menupopup>
 
   <vbox id="agenda-menu-box">
     <menuitem id="ics-inspector-item-inspect-event"
@@ -71,7 +41,7 @@
               oncommand="gICSInspector.evaluateTask()"/>
   </menupopup>
 
-  <popup id="list-calendars-context-menu">
+  <menupopup id="list-calendars-context-menu">
     <menuitem id="ics-inspector-inspect-calendar"
               label="&ics-inspector.context.inspect.label;"
               insertafter="list-calendars-context-publish"
@@ -86,7 +56,7 @@
               label="&ics-inspector.context.resetlog.label;"
               insertafter="list-calendars-context-reload"
               oncommand="gICSInspector.resetLog()"/>
-  </popup>
+  </menupopup>
 
   <menupopup id="taskPopup">
     <menu id="ics-inspector-debug-menu"
@@ -105,6 +75,9 @@
         <menuitem id="ics-inspector-about-config"
                   label="&ics-inspector.debug.about.config.label;"
                   oncommand="openDialog('about:config');"/>
+        <menuitem id="ics-inspector-flush-prefs"
+                  label="&ics-inspector.debug.flushprefs.label;"
+                  oncommand="gICSInspector.flushPrefs()"/>
 
       </menupopup>
     </menu>

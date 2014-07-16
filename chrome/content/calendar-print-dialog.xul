@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this file,
+   - You can obtain one at http://mozilla.org/MPL/2.0/.
+   - Portions Copyright (C) Philipp Kewisch, 2012 -->
+
+<!DOCTYPE overlay [
+    <!ENTITY % viewsDTD SYSTEM "chrome://calendar/locale/preferences/views.dtd"> %viewsDTD;
+    <!ENTITY % globalDTD SYSTEM "chrome://calendar/locale/global.dtd"> %globalDTD;
+    <!ENTITY % icsInspectorDTD SYSTEM "chrome://ics-inspector/locale/inspector.dtd"> %icsInspectorDTD;
+]>
+<overlay id="ics-inspector-unifinder-overlay"
+         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script type="application/javascript" src="chrome://ics-inspector/content/calendar-print-dialog.js"/>
+  <vbox id="groupboxVbox">
+    <groupbox id="debugGroupbox">
+      <caption label="&printDialog.groupbox.title;"/>
+      <hbox align="center" id="weekStartBox">
+        <label value="&pref.weekstarts.label;"
+               accesskey="&pref.weekstarts.accesskey;"
+               control="weekstarts"/>
+        <menulist id="weekstarts"
+                  oncommand="gICSInspector.updateWeekStarts(this.value)">
+          <menupopup id="weekstartspopup">
+              <menuitem label="&day.1.name;" value="0"/>
+              <menuitem label="&day.2.name;" value="1"/>
+              <menuitem label="&day.3.name;" value="2"/>
+              <menuitem label="&day.4.name;" value="3"/>
+              <menuitem label="&day.5.name;" value="4"/>
+              <menuitem label="&day.6.name;" value="5"/>
+              <menuitem label="&day.7.name;" value="6"/>
+          </menupopup>
+        </menulist>
+      </hbox>
+      <label value="&pref.daysoff.label;"/>
+      <hbox id="dayOffBox" oncommand="gICSInspector.updateDaysOff(event)" pack="center">
+        <checkbox id="dayoff0" class="dayOffCheckbox"
+                  orient="vertical" prefName="d0sundaysoff"
+                  label="&day.1.Ddd;" accesskey="&day.1.Ddd.accesskey;"/>
+        <checkbox id="dayoff1" class="dayOffCheckbox"
+                  orient="vertical" prefName="d1mondaysoff"
+                  label="&day.2.Ddd;" accesskey="&day.2.Ddd.accesskey;"/>
+        <checkbox id="dayoff2" class="dayOffCheckbox"
+                  orient="vertical" prefName="d2tuesdaysoff"
+                  label="&day.3.Ddd;" accesskey="&day.3.Ddd.accesskey;"/>
+        <checkbox id="dayoff3" class="dayOffCheckbox"
+                  orient="vertical" prefName="d3wednesdaysoff"
+                  label="&day.4.Ddd;" accesskey="&day.4.Ddd.accesskey;"/>
+        <checkbox id="dayoff4" class="dayOffCheckbox"
+                  orient="vertical" prefName="d4thursdaysoff"
+                  label="&day.5.Ddd;" accesskey="&day.5.Ddd.accesskey;"/>
+        <checkbox id="dayoff5" class="dayOffCheckbox"
+                  orient="vertical" prefName="d5fridaysoff"
+                  label="&day.6.Ddd;" accesskey="&day.6.Ddd.accesskey;"/>
+        <checkbox id="dayoff6" class="dayOffCheckbox"
+                  orient="vertical" prefName="d6saturdaysoff"
+                  label="&day.7.Ddd;" accesskey="&day.7.Ddd.accesskey;"/>
+      </hbox>
+    </groupbox>
+  </vbox>
+</overlay>
