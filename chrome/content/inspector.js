@@ -4,10 +4,11 @@
  * Portions Copyright (C) Philipp Kewisch, 2008-2014 */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var gICSInspector = {
   getString: function II_getString(aStringName, aParams) {
-    return calGetString("inspector", aStringName, aParams, "ics-inspector");
+    return cal.calGetString("inspector", aStringName, aParams, "ics-inspector");
   },
 
   flushPrefs: function II_flushPrefs() {
@@ -106,15 +107,8 @@ var gICSInspector = {
   },
 
   getSelectedTask: function II_getSelectedTask() {
-    if (typeof getFocusedTaskTree != "undefined" ) {
-      // 0.9
-      var tt = getFocusedTaskTree();
-      return tt && tt.selectedTasks[0];
-    } else {
-      // trunk
-      var tasks = getSelectedTasks();
-      return tasks && tasks.length && tasks[0];
-    }
+    var tasks = getSelectedTasks();
+    return tasks && tasks.length && tasks[0];
   },
 
   _enableOrDisableItem: function II__enableOrDisableItem(id, expr) {
@@ -304,10 +298,10 @@ var gICSInspector = {
     addPSHandler("taskitem-context-menu", "setupTaskContextMenu");
     addPSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
 
-    if (getPrefSafe("calendar.debug.log", false)) {
+    if (Preferences.get("calendar.debug.log", false)) {
       document.getElementById("ics-inspector-debug-log").setAttribute("checked", "true");
     }
-    if (getPrefSafe("calendar.debug.log.verbose", false)) {
+    if (Preferences.get("calendar.debug.log.verbose", false)) {
       document.getElementById("ics-inspector-debug-log-verbose").setAttribute("checked", "true");
     }
 
@@ -345,12 +339,12 @@ var gICSInspector = {
         switch (aPrefName) {
           case "calendar.debug.log":
             setElementValue("ics-inspector-debug-log",
-                            getPrefSafe("calendar.debug.log", false) && "true",
+                            Preferences.get("calendar.debug.log", false) && "true",
                             "checked");
             break;
           case "calendar.debug.log.verbose":
             setElementValue("ics-inspector-debug-log-verbose",
-                            getPrefSafe("calendar.debug.log.verbose", false) && "true",
+                            Preferences.get("calendar.debug.log.verbose", false) && "true",
                             "checked");
             break;
         }

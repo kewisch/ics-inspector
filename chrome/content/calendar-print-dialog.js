@@ -3,18 +3,18 @@
  * You can obtain one at http://mozilla.org/MPL/2.0/.
  * Portions Copyright (C) Philipp Kewisch, 2012 */
 
-Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://gre/modules/Preferences.jsm");
 
 var gICSInspector = {
     updateWeekStarts: function updateWeekStarts(value) {
-        cal.setPref("calendar.week.start", parseInt(value, 10));
+        Preferences.set("calendar.week.start", parseInt(value, 10));
 
         updatePrintState();
         refreshHtml();
     },
     updateDaysOff: function updateDaysOff(event) {
         let prefName = event.target.getAttribute("prefName");
-        cal.setPref("calendar.week." + prefName, !event.target.checked);
+        Preferences.set("calendar.week." + prefName, !event.target.checked);
 
         updatePrintState();
         refreshHtml();
@@ -25,7 +25,7 @@ var gICSInspector = {
                            "d6saturdaysoff"];
         for (let i = 0; i < 7; i++) {
             let cb = document.getElementById("dayoff" + i);
-            cb.checked = !cal.getPrefSafe("calendar.week." + prefNames[i], false);
+            cb.checked = !Preferences.get("calendar.week." + prefNames[i], false);
         }
     }
 };
