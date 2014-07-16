@@ -117,6 +117,17 @@ var gICSInspector = {
     return tasks && tasks.length && tasks[0];
   },
 
+  treeDblClick: function(event) {
+    let col = {};
+    let tree = document.getElementById("calendar-list-tree-widget");
+    let calendar = tree.getCalendarFromEvent(event, col);
+    if (event.button == 0 && col.value && col.value.element &&
+        col.value.element.getAttribute("anonid") == "checkbox-treecol") {
+        let newValue = !calendar.getProperty("disabled");
+        calendar.setProperty("disabled", newValue);
+    }
+  },
+
   _enableOrDisableItem: function II__enableOrDisableItem(id, expr) {
     var el = document.getElementById(id);
     if (el) {
@@ -193,10 +204,11 @@ var gICSInspector = {
           var newValue = !calendar.getProperty("cache.enabled");
           calendar.setProperty("cache.enabled", newValue);
           break;
+        default:
+          gICSInspector.calendarListTreeView.originals.cycleCell.call(this, aRow, aCol);
+          break;
       }
       this.treebox.invalidateRow(aRow);
-
-      return gICSInspector.calendarListTreeView.originals.cycleCell.call(this, aRow, aCol);
     },
 
     getRowProperties: function getRowProperties(aRow, aProps)  {
@@ -232,6 +244,10 @@ var gICSInspector = {
     let calendarnameTreecol = getCol("calendarname-treecol");
     let cacheTreecol = createXULElement("treecol");
     let scrollbarSpacer = getCol("scrollbar-spacer");
+
+    // Set up the dblclick handler
+    this.treeDblClick = this.treeDblClick.bind(this);
+    tree.addEventListener("dblclick", this.treeDblClick, true);
 
     // Show the column picker
     getCol("tree").removeAttribute("hidecolumnpicker");
@@ -315,6 +331,7 @@ var gICSInspector = {
   },
 
   unload: function II_unload() {
+    let tree = document.getElementById("calendar-list-tree-widget");
     window.removeEventListener("unload", gICSInspector.unload, false);
 
     var prefService = Components.classes["@mozilla.org/preferences-service;1"]
@@ -337,6 +354,9 @@ var gICSInspector = {
     removePSHandler("calendar-view-context-menu", "setupViewContextMenu");
     removePSHandler("taskitem-context-menu", "setupTaskContextMenu");
     removePSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
+
+    // Remove the dblclick handler
+    tree.removeEventListener("dblclick", this.treeDblClick, true);
   },
 
   observe: function II_observe(aSubject, aTopic, aPrefName) {
