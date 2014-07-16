@@ -54,19 +54,19 @@ function onload(e) {
                                         "jsEval.calendar.desc",
                                         null,
                                         "ics-inspector");
-    window.title = cal.calGetString("inspector",
-                                    "jsEval.calendar.title",
-                                    [thing.name],
-                                    "ics-inspector");
+    document.title = cal.calGetString("inspector",
+                                     "jsEval.calendar.title",
+                                     [thing.name],
+                                     "ics-inspector");
   } else if (thing instanceof Components.interfaces.calIItemBase) {
     targetCached.setAttribute("hidden", "true");
     if (!thing.parentItem.recurrenceInfo) {
       masterItem.setAttribute("hidden", "true");
     }
-    window.title = cal.calGetString("inspector",
-                                    "jsEval.item.title",
-                                    [thing.title],
-                                    "ics-inspector");
+    document.title = cal.calGetString("inspector",
+                                      "jsEval.item.title",
+                                      [thing.title],
+                                      "ics-inspector");
     desc.textContent = cal.calGetString("inspector",
                                         "jsEval.item.desc",
                                         null,
