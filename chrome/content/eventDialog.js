@@ -29,13 +29,13 @@ var gICSInspector = {
     showOriginalICS: function() {
         let item = window.calendarItem;
         let uri = "chrome://ics-inspector/content/inspector.xul";
-        window.openDialog(uri, item.hashId + "-orig", "chrome", [item], true);
+        window.openDialog(uri, item.hashId + "-orig", "chrome", [item], null, true);
     },
 
     showCurrentICS: function() {
         let item = saveItem();
         let uri = "chrome://ics-inspector/content/inspector.xul";
-        window.openDialog(uri, item.hashId + "-current", "chrome", [item], true);
+        window.openDialog(uri, item.hashId + "-current", "chrome", [item], null, true);
     }
 };
 

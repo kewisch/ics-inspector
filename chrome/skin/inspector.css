@@ -13,3 +13,14 @@
 #calendar-list-tree-widget > tree > treecols {
     background: -moz-linear-gradient(to top, #e1e1e1, #ffffff);
 }
+
+#ics-inspector-textbox {
+    font-size:1.2em;
+    font-family: monospace;
+}
+
+#ics-inspector-textbox[readonly] {
+  -moz-appearance: none;
+  border: 0;
+  background: transparent;
+}
