@@ -41,23 +41,18 @@
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script type="application/x-javascript" src="chrome://ics-inspector/content/inspector.js"/>
 
-  <popup id="context-menu">
-    <menuitem id="ics-inspector-inspect-event"
-              label="&ics-inspector.context.inspect.label;"
-              insertafter="general-context-menu-delete"
-              oncommand="gICSInspector.inspectEvent()"/>
-  </popup>
-
-  <popup id="calendar-view-context-menu">
-    <menuitem id="ics-inspector-view-inspect-event"
-              label="&ics-inspector.context.inspect.label;"
-              oncommand="gICSInspector.inspectEvent()"/>
-  </popup>
-
   <popup id="calendar-item-context-menu">
+    <menuseparator id="ics-inspector-separator"/>
     <menuitem id="ics-inspector-item-inspect-event"
               label="&ics-inspector.context.inspect.label;"
               oncommand="gICSInspector.inspectEvent()"/>
+    <menuitem id="ics-inspector-eval-occurrence"
+              label="&ics-inspector.context.evaluate.label;"
+              oncommand="gICSInspector.evaluateItem(event)"/>
+    <menuseparator id="ics-inspector-eventdialog-separator"/>
+    <menuitem id="ics-inspector-item-alarmdialog"
+              label="&ics-inspector.context.alarmdialog.label;"
+              oncommand="gICSInspector.openAlarmDialog()"/>
   </popup>
 
   <vbox id="agenda-menu-box">
@@ -71,6 +66,9 @@
               label="&ics-inspector.context.inspect.label;"
               insertafter="task-context-menu-delete"
               oncommand="gICSInspector.inspectTask()"/>
+    <menuitem id="ics-inspector-eval-task"
+              label="&ics-inspector.context.evaluate.label;"
+              oncommand="gICSInspector.evaluateTask()"/>
   </menupopup>
 
   <popup id="list-calendars-context-menu">
@@ -78,5 +76,41 @@
               label="&ics-inspector.context.inspect.label;"
               insertafter="list-calendars-context-publish"
               oncommand="gICSInspector.inspectCalendar()"/>
+    <menuitem id="ics-inspector-evaluate-calendar"
+              label="&ics-inspector.context.evaluate.label;"
+              insertafter="list-calendars-context-publish"
+              oncommand="gICSInspector.evaluateCalendar()"/>
+    <menuseparator id="ics-inspector-evalinspect-separator"
+                   insertafter="list-calendars-context-publish"/>
+    <menuitem id="ics-inspector-cached-resetlog"
+              label="&ics-inspector.context.resetlog.label;"
+              insertafter="list-calendars-context-reload"
+              oncommand="gICSInspector.resetLog()"/>
   </popup>
+
+  <menupopup id="taskPopup">
+    <menu id="ics-inspector-debug-menu"
+          insertafter="devToolsSeparator,javaScriptConsole"
+          label="&ics-inspector.debug.tools.label;">
+      <menupopup id="ics-inspector-debug-tools">
+        <menuitem id="ics-inspector-debug-log"
+                  type="checkbox"
+                  oncommand="gICSInspector.setDebugLog(event, false)"
+                  label="&ics-inspector.debug.log.label;"/>
+        <menuitem id="ics-inspector-debug-log-verbose"
+                  type="checkbox"
+                  oncommand="gICSInspector.setDebugLog(event, true)"
+                  label="&ics-inspector.debug.log.verbose.label;"/>
+        <menuseparator id="ics-inspector-debug-menuseparator"/>
+        <menuitem id="ics-inspector-about-config"
+                  label="&ics-inspector.debug.about.config.label;"
+                  oncommand="openDialog('about:config');"/>
+
+      </menupopup>
+    </menu>
+  </menupopup>
+
+  <keyset id="calendar-keys">
+    <key id="reloadRemoteCalendarsKey" key="F5" observes="calendar_reload_remote_calendars"/>
+  </keyset>
 </overlay>

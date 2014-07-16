@@ -35,6 +35,9 @@
  * ***** END LICENSE BLOCK ***** */
 
 var gICSInspector = {
+  getString: function II_getString(aStringName, aParams) {
+    return calGetString("inspector", aStringName, aParams, "ics-inspector");
+  },
   inspectEvent: function II_inspectEvent() {
     var selectedItem = this.getSelectedEvent();
     if (selectedItem) {
@@ -49,6 +52,12 @@ var gICSInspector = {
       var uri = "chrome://ics-inspector/content/inspector.xul";
       window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
     }
+  },
+
+  evaluateTask: function II_evaluateTask() {
+    var item = this.getSelectedTask();
+    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
+    window.openDialog(uri, "evaluate-item-" + item.hashId, "chrome", item);
   },
   
   inspectCalendar: function II_inspectCalendar() {
@@ -65,12 +74,51 @@ var gICSInspector = {
                                                                 aOperationType,
                                                                 aId, aDetail) {
           var uri = "chrome://ics-inspector/content/inspector.xul";
-          window.openDialog(uri, aCalendar.id, "chrome", this.mItems, aCalendar.name);
+          window.openDialog(uri, "inspect-" + aCalendar.id, "chrome", this.mItems, aCalendar.name);
         }
       };
 
       selectedCalendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
                                 0, null, null, listener);
+    }
+  },
+
+  evaluateCalendar: function II_evaluateCalendar() {
+    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
+    var calendar = getSelectedCalendar();
+    window.openDialog(uri, "evaluate-" + calendar.id, "chrome", calendar);
+  },
+
+  evaluateItem: function II_evaluateItem(event) {
+    // This is needed for 0.9 compatibility, for 1.0 only document.popupNode is
+    // sufficient.
+    var node = getParentNodeOrThis(document.popupNode,
+                                   "calendar-month-day-box-item") ||
+               getParentNodeOrThis(document.popupNode,
+                                   "calendar-event-box") ||
+               getParentNodeOrThis(document.popupNode,
+                                   "calendar-editable-item");
+    var item = node.mOccurrence;
+    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
+    window.openDialog(uri, "evaluate-item-" + item.hashId, "chrome", item);
+  },
+
+  shouldOpenAlarmDialog: false,
+  openAlarmDialog: function II_openAlarmDialog() {
+    var selectedItem = this.getSelectedEvent();
+    gICSInspector.shouldOpenAlarmDialog = true;
+
+    modifyEventWithDialog(selectedItem, null, false);
+  },
+
+  resetLog: function II_resetLog() {
+    var selectedCalendar = getSelectedCalendar().wrappedJSObject;
+    if (selectedCalendar.supportsChangeLog) {
+      try {
+        selectedCalendar.mCachedCalendar.QueryInterface(Components.interfaces.calICalendarProvider).deleteCalendar(selectedCalendar.mCachedCalendar);
+      } catch (e) { }
+      selectedCalendar.mUncachedCalendar.resetLog();
+
     }
   },
 
@@ -88,8 +136,15 @@ var gICSInspector = {
   },
 
   getSelectedTask: function II_getSelectedTask() {
-    var tt = getFocusedTaskTree();
-    return tt && tt.selectedTasks[0];
+    if (typeof getFocusedTaskTree != "undefined" ) {
+      // 0.9
+      var tt = getFocusedTaskTree();
+      return tt && tt.selectedTasks[0];
+    } else {
+      // trunk
+      var tasks = getSelectedTasks();
+      return tasks && tasks.length && tasks[0];
+    }
   },
 
   _enableOrDisableItem: function II__enableOrDisableItem(id, expr) {
@@ -107,39 +162,65 @@ var gICSInspector = {
       var col = {};
       var row = {};
       var calendar;
+      var calendarList = (typeof calendarListTreeView == "undefined" ?
+        document.getElementById("calendar-list-tree-widget") :
+        calendarListTreeView);
   
       if (document.popupNode.localName == "tree") {
           // Using VK_APPS to open the context menu will target the tree
           // itself. In that case we won't have a client point even for
           // opening the context menu. The "target" element should then be the
           // selected element.
-          row.value =  calendarListTreeView.tree.currentIndex;
-          calendar = calendarListTreeView.mCalendarList[row.value];
+          row.value =  calendarList.tree.currentIndex;
+          calendar = calendarList.mCalendarList[row.value];
       } else {
           // Using the mouse, the context menu will open on the treechildren
           // element. Here we can use client points.
-          calendar = calendarListTreeView.getCalendarFromEvent(event, col, row);
+          calendar = calendarList.getCalendarFromEvent(event, col, row);
       }
 
 
       gICSInspector._enableOrDisableItem("ics-inspector-inspect-calendar", calendar);
+      gICSInspector._enableOrDisableItem("ics-inspector-evaluate-calendar", calendar);
+      gICSInspector._enableOrDisableItem("ics-inspector-cached-resetlog",
+                                         calendar && calendar.wrappedJSObject.supportsChangeLog);
   },
 
   setupViewContextMenu: function II_setupViewContextMenu() {
     var selectedItem = gICSInspector.getSelectedEvent();
     gICSInspector._enableOrDisableItem("ics-inspector-inspect-event", selectedItem);
     gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-event", selectedItem);
-    gICSInspector._enableOrDisableItem("ics-inspector-view-inspect-event", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-eval-occurrence", selectedItem);
   },
 
   setupTaskContextMenu: function II_setupTaskContextMenu() {
     gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-task",
                                        gICSInspector.getSelectedTask());
+    gICSInspector._enableOrDisableItem("ics-inspector-eval-task",
+                                       gICSInspector.getSelectedTask());
   },
-      
+
+  setDebugLog: function II_setDebugLog(event, verbose) {
+    var pref = "calendar.debug.log" + (verbose ? ".verbose" : "");
+   
+    // No direct way to differ here, but 0.9 had an isBranch() function
+    if (typeof isBranch != "undefined") {
+      // 0.9
+      setPref(pref, 'BOOL', event.target.getAttribute("checked") == "true");
+    } else {
+      // trunk
+      setPref(pref, event.target.getAttribute("checked") == "true");
+    }
+  },
 
   load: function II_load() {
     window.removeEventListener("load", gICSInspector.load, false);
+
+    var prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefService);
+    var branch = prefService.getBranch("")
+                            .QueryInterface(Components.interfaces.nsIPrefBranch2);
+    branch.addObserver("calendar.debug.", gICSInspector, false);
 
     function addPSHandler(id, funcName) {
       var popup = document.getElementById(id);
@@ -155,10 +236,23 @@ var gICSInspector = {
     addPSHandler("calendar-view-context-menu", "setupViewContextMenu");
     addPSHandler("taskitem-context-menu", "setupTaskContextMenu");
     addPSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
+
+    if (getPrefSafe("calendar.debug.log", false)) {
+      document.getElementById("ics-inspector-debug-log").setAttribute("checked", "true");
+    }
+    if (getPrefSafe("calendar.debug.log.verbose", false)) {
+      document.getElementById("ics-inspector-debug-log-verbose").setAttribute("checked", "true");
+    }
   },
 
   unload: function II_unload() {
     window.removeEventListener("unload", gICSInspector.unload, false);
+
+    var prefService = Components.classes["@mozilla.org/preferences-service;1"]
+                      .getService(Components.interfaces.nsIPrefService);
+    var branch = prefService.getBranch("")
+                            .QueryInterface(Components.interfaces.nsIPrefBranch2);
+    branch.removeObserver("calendar.debug.", gICSInspector, false);
 
     function removePSHandler(id, funcName) {
       var popup = document.getElementById(id);
@@ -174,8 +268,28 @@ var gICSInspector = {
     removePSHandler("calendar-view-context-menu", "setupViewContextMenu");
     removePSHandler("taskitem-context-menu", "setupTaskContextMenu");
     removePSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
+  },
+
+  observe: function II_observe(aSubject, aTopic, aPrefName) {
+    switch (aTopic) {
+      case "nsPref:changed":
+        switch (aPrefName) {
+          case "calendar.debug.log":
+            setElementValue("ics-inspector-debug-log",
+                            getPrefSafe("calendar.debug.log", false) && "true",
+                            "checked");
+            break;
+          case "calendar.debug.log.verbose":
+            setElementValue("ics-inspector-debug-log-verbose",
+                            getPrefSafe("calendar.debug.log.verbose", false) && "true",
+                            "checked");
+            break;
+        }
+        break;
+    }
   }
 };
+
 
 window.addEventListener("load", gICSInspector.load, false);
 window.addEventListener("unload", gICSInspector.unload, false);
