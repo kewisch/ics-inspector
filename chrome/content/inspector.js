@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * Portions Copyright (C) Philipp Kewisch, 2008-2013 */
+ * Portions Copyright (C) Philipp Kewisch, 2008-2014 */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 
@@ -16,28 +16,13 @@ var gICSInspector = {
               .savePrefFile(null);
   },
 
-  inspectEvent: function II_inspectEvent() {
-    var selectedItem = this.getSelectedEvent();
+  inspectItem: function(selectedItem) {
     if (selectedItem) {
       var uri = "chrome://ics-inspector/content/inspector.xul";
       window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
     }
   },
 
-  inspectTask: function II_inspectTask() {
-    var selectedItem = this.getSelectedTask();
-    if (selectedItem) {
-      var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
-    }
-  },
-
-  evaluateTask: function II_evaluateTask() {
-    var item = this.getSelectedTask();
-    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
-    window.openDialog(uri, "evaluate-item-" + item.hashId, "chrome", item);
-  },
-  
   inspectCalendar: function II_inspectCalendar() {
     var selectedCalendar = getSelectedCalendar();
     if (selectedCalendar) {
@@ -67,7 +52,13 @@ var gICSInspector = {
     window.openDialog(uri, "evaluate-" + calendar.id, "chrome", calendar);
   },
 
-  evaluateItem: function II_evaluateItem(event) {
+  evaluateItem: function II_evaluateItem(item) {
+    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
+    window.openDialog(uri, "evaluate-item-" + item.hashId, "chrome", item);
+  },
+
+  getPopupNodeItem: function() {
+    return this.getSelectedEvent();
     // This is needed for 0.9 compatibility, for 1.0 only document.popupNode is
     // sufficient.
     var node = getParentNodeOrThis(document.popupNode,
@@ -76,17 +67,27 @@ var gICSInspector = {
                                    "calendar-event-box") ||
                getParentNodeOrThis(document.popupNode,
                                    "calendar-editable-item");
-    var item = node.mOccurrence;
-    var uri = "chrome://ics-inspector/content/evalExprDialog.xul";
-    window.openDialog(uri, "evaluate-item-" + item.hashId, "chrome", item);
+    return node.mOccurrence;
+  },
+
+  getAgendaItem: function() {
+    var listItem  = document.getElementById("agenda-listbox").selectedItem;
+    return listItem.getItem();
+  },
+
+  revertException: function(item) {
+    if (!item.recurrenceId) {
+        return;
+    }
+    var parentItem = item.parentItem.clone();
+    parentItem.recurrenceInfo.removeExceptionFor(item.recurrenceId);
+    doTransaction("modify", parentItem, parentItem.calendar, item.parentItem, null);
   },
 
   shouldOpenAlarmDialog: false,
-  openAlarmDialog: function II_openAlarmDialog() {
-    var selectedItem = this.getSelectedEvent();
+  openAlarmDialog: function II_openAlarmDialog(item) {
     gICSInspector.shouldOpenAlarmDialog = true;
-
-    modifyEventWithDialog(selectedItem, null, false);
+    modifyEventWithDialog(item, null, false);
   },
 
   resetLog: function II_resetLog() {
@@ -97,15 +98,6 @@ var gICSInspector = {
       } catch (e) { }
       selectedCalendar.mUncachedCalendar.resetLog();
 
-    }
-  },
-
-  agendaInspectEvent: function II_agendaInspectEvent() {
-    var listItem  = document.getElementById("agenda-listbox").selectedItem;
-    var selectedItem = listItem.getItem();
-    if (selectedItem) {
-      var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
     }
   },
 
@@ -165,16 +157,22 @@ var gICSInspector = {
 
   setupViewContextMenu: function II_setupViewContextMenu() {
     var selectedItem = gICSInspector.getSelectedEvent();
-    gICSInspector._enableOrDisableItem("ics-inspector-inspect-event", selectedItem);
-    gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-event", selectedItem);
-    gICSInspector._enableOrDisableItem("ics-inspector-eval-occurrence", selectedItem);
+    var recInfo = selectedItem && selectedItem.parentItem.recurrenceInfo;
+    var isRecException = recInfo && selectedItem.recurrenceId &&
+                         recInfo.getExceptionFor(selectedItem.recurrenceId);
+    gICSInspector._enableOrDisableItem("ics-inspector-item-inspect", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-item-eval", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-item-revertException", isRecException);
   },
 
   setupTaskContextMenu: function II_setupTaskContextMenu() {
-    gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-task",
-                                       gICSInspector.getSelectedTask());
-    gICSInspector._enableOrDisableItem("ics-inspector-eval-task",
-                                       gICSInspector.getSelectedTask());
+    var selectedItem = gICSInspector.getSelectedTask();
+    var recInfo = selectedItem && selectedItem.parentItem.recurrenceInfo;
+    var isRecException = recInfo && selectedItem.recurrenceId &&
+                         recInfo.getExceptionFor(selectedItem.recurrenceId);
+    gICSInspector._enableOrDisableItem("ics-inspector-task-inspect", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-task-eval", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-task-revertException", isRecException);
   },
 
   setDebugLog: function II_setDebugLog(event, verbose) {

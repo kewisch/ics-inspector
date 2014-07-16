@@ -2,7 +2,7 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
-   - Portions Copyright (C) Philipp Kewisch, 2008 -->
+   - Portions Copyright (C) Philipp Kewisch, 2008-2014 -->
 
 <?xml-stylesheet href="chrome://ics-inspector/skin/inspector.css" type="text/css"?>
 <!DOCTYPE overlay SYSTEM "chrome://ics-inspector/locale/inspector.dtd">
@@ -13,32 +13,41 @@
 
   <menupopup id="calendar-item-context-menu">
     <menuseparator id="ics-inspector-separator"/>
-    <menuitem id="ics-inspector-item-inspect-event"
+    <menuitem id="ics-inspector-item-inspect"
               label="&ics-inspector.context.inspect.label;"
-              oncommand="gICSInspector.inspectEvent()"/>
-    <menuitem id="ics-inspector-eval-occurrence"
+              oncommand="gICSInspector.inspectItem(gICSInspector.getPopupNodeItem())"/>
+    <menuitem id="ics-inspector-item-eval"
               label="&ics-inspector.context.evaluate.label;"
-              oncommand="gICSInspector.evaluateItem(event)"/>
+              oncommand="gICSInspector.evaluateItem(gICSInspector.getPopupNodeItem())"/>
     <menuseparator id="ics-inspector-eventdialog-separator"/>
     <menuitem id="ics-inspector-item-alarmdialog"
               label="&ics-inspector.context.alarmdialog.label;"
-              oncommand="gICSInspector.openAlarmDialog()"/>
+              oncommand="gICSInspector.openAlarmDialog(gICSInspector.getPopupNodeItem())"/>
+    <menuitem id="ics-inspector-item-revertException"
+              label="&ics-inspector.context.revertException.label;"
+              oncommand="gICSInspector.revertException(gICSInspector.getPopupNodeItem())"/>
   </menupopup>
 
   <vbox id="agenda-menu-box">
-    <menuitem id="ics-inspector-item-inspect-event"
+    <menuitem id="ics-inspector-agenda-inspect"
               label="&ics-inspector.context.inspect.label;"
-              oncommand="gICSInspector.agendaInspectEvent(event)"/>
+              oncommand="gICSInspector.inspectItem(gICSInspector.getAgendaItem())"/>
+    <menuitem id="ics-inspector-agenda-revertException"
+              label="&ics-inspector.context.revertException.label;"
+              oncommand="gICSInspector.revertException(gICSInspector.getAgendaItem())"/>
   </vbox>
 
   <menupopup id="taskitem-context-menu">
-    <menuitem id="ics-inspector-item-inspect-task"
+    <menuitem id="ics-inspector-task-inspect"
               label="&ics-inspector.context.inspect.label;"
               insertafter="task-context-menu-delete"
-              oncommand="gICSInspector.inspectTask()"/>
-    <menuitem id="ics-inspector-eval-task"
+              oncommand="gICSInspector.inspectItem(gICSInspector.getSelectedTask())"/>
+    <menuitem id="ics-inspector-task-eval"
               label="&ics-inspector.context.evaluate.label;"
-              oncommand="gICSInspector.evaluateTask()"/>
+              oncommand="gICSInspector.evaluateItem(gICSInspector.getSelectedTask())"/>
+    <menuitem id="ics-inspector-task-revertException"
+              label="&ics-inspector.context.revertException.label;"
+              oncommand="gICSInspector.revertException(gICSInspector.getSelectedTask())"/>
   </menupopup>
 
   <menupopup id="list-calendars-context-menu">

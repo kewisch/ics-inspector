@@ -2,14 +2,14 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
-   - Portions Copyright (C) Philipp Kewisch, 2008-2013 -->
+   - Portions Copyright (C) Philipp Kewisch, 2008-2014 -->
 
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
      xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
 
     <em:id>{3dcf3762-4cda-4fd2-be13-13b9a10769fd}</em:id>
-    <em:version>0.7</em:version>
+    <em:version>0.8</em:version>
     <em:type>2</em:type>
 
     <!-- Target Application this extension can install into,
