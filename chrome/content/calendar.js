@@ -213,7 +213,7 @@ var gICSInspector = {
       this.treebox.invalidateRow(aRow);
     },
 
-    getRowProperties: function getRowProperties(aRow, aProps)  {
+    getRowProperties: function getRowProperties(aRow)  {
       let calendar = this.getCalendar(aRow);
       let composite = this.compositeCalendar;
       let props = []
@@ -226,13 +226,8 @@ var gICSInspector = {
         props.push("cached");
       }
 
-      if (aProps) {
-        props.map(cal.getAtomFromService).forEach(aProps.AppendElement, aProps);
-        return gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow, aProps);
-      } else {
-        props.push(gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow, aProps));
-        return props.join(" ");
-      }
+      props.push(gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow));
+      return props.join(" ");
     },
   },
 
