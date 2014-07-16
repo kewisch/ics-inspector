@@ -42,40 +42,41 @@
   <script type="application/x-javascript" src="chrome://ics-inspector/content/inspector.js"/>
 
   <popup id="context-menu">
-    <menuitem id="ics-inpsector-inspect-event"
+    <menuitem id="ics-inspector-inspect-event"
               label="&ics-inspector.context.inspect.label;"
               insertafter="general-context-menu-delete"
-              observes="ics_inspector_inspect_event_command"/>
+              oncommand="gICSInspector.inspectEvent()"/>
   </popup>
 
   <popup id="calendar-view-context-menu">
     <menuitem id="ics-inspector-view-inspect-event"
               label="&ics-inspector.context.inspect.label;"
-              observes="ics_inspector_inspect_event_command"/>
+              oncommand="gICSInspector.inspectEvent()"/>
   </popup>
 
   <popup id="calendar-item-context-menu">
     <menuitem id="ics-inspector-item-inspect-event"
               label="&ics-inspector.context.inspect.label;"
-              observes="ics_inspector_inspect_event_command"/>
+              oncommand="gICSInspector.inspectEvent()"/>
   </popup>
 
   <vbox id="agenda-menu-box">
     <menuitem id="ics-inspector-item-inspect-event"
               label="&ics-inspector.context.inspect.label;"
-              observes="ics_inspector_inspect_agenda_event_command"/>
+              oncommand="gICSInspector.agendaInspectEvent(event)"/>
   </vbox>
 
   <menupopup id="taskitem-context-menu">
     <menuitem id="ics-inspector-item-inspect-task"
               label="&ics-inspector.context.inspect.label;"
               insertafter="task-context-menu-delete"
-              observes="ics_inspector_inspect_task_command"/>
+              oncommand="gICSInspector.inspectTask()"/>
   </menupopup>
 
-  <commandset id="calendar_commands">
-    <command id="ics_inspector_inspect_event_command" oncommand="goDoCommand('ics_inspector_inspect_event_command');"/>
-    <command id="ics_inspector_inspect_task_command" oncommand="goDoCommand('ics_inspector_inspect_task_command');"/>
-    <command id="ics_inspector_inspect_agenda_event_command" oncommand="gICSInspector.agendaEditEvent(event);"/>
-  </commandset>
+  <popup id="list-calendars-context-menu">
+    <menuitem id="ics-inspector-inspect-calendar"
+              label="&ics-inspector.context.inspect.label;"
+              insertafter="list-calendars-context-publish"
+              oncommand="gICSInspector.inspectCalendar()"/>
+  </popup>
 </overlay>

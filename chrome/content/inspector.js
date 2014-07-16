@@ -34,13 +34,12 @@
  *
  * ***** END LICENSE BLOCK ***** */
 
-
 var gICSInspector = {
   inspectEvent: function II_inspectEvent() {
     var selectedItem = this.getSelectedEvent();
     if (selectedItem) {
       var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", selectedItem);
+      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
     }
   },
 
@@ -48,16 +47,39 @@ var gICSInspector = {
     var selectedItem = this.getSelectedTask();
     if (selectedItem) {
       var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", selectedItem);
+      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
+    }
+  },
+  
+  inspectCalendar: function II_inspectCalendar() {
+    var selectedCalendar = getSelectedCalendar();
+    if (selectedCalendar) {
+      var listener = {
+        mItems: [],
+        onGetResult: function II_iC_onGetResult(aCalendar, aStatus, aItemType,
+                                                aDetail, aCount, aItems) {
+          this.mItems = this.mItems.concat(aItems);
+        },
+        onOperationComplete: function II_iC_onOperationComplete(aCalendar,
+                                                                aStatus,
+                                                                aOperationType,
+                                                                aId, aDetail) {
+          var uri = "chrome://ics-inspector/content/inspector.xul";
+          window.openDialog(uri, aCalendar.id, "chrome", this.mItems, aCalendar.name);
+        }
+      };
+
+      selectedCalendar.getItems(Components.interfaces.calICalendar.ITEM_FILTER_ALL_ITEMS,
+                                0, null, null, listener);
     }
   },
 
-  agendaEditEvent: function II_agendaEditEvent() {
+  agendaInspectEvent: function II_agendaInspectEvent() {
     var listItem  = document.getElementById("agenda-listbox").selectedItem;
     var selectedItem = listItem.getItem();
     if (selectedItem) {
       var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", selectedItem);
+      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
     }
   },
 
@@ -66,71 +88,94 @@ var gICSInspector = {
   },
 
   getSelectedTask: function II_getSelectedTask() {
-    return getFocusedTaskTree().selectedTasks[0];
+    var tt = getFocusedTaskTree();
+    return tt && tt.selectedTasks[0];
   },
 
-  command_controller: {
-    updateCommands: function II_cc_updateCommands() {
-      goUpdateCommand("ics_inspector_inspect_event_command");
-      goUpdateCommand("ics_inspector_inspect_task_command");
-    },
-
-    supportsCommand: function II_cc_supportsCommand(aCommand) {
-      return (aCommand == "ics_inspector_inspect_event_command" ||
-              aCommand == "ics_inspector_inspect_task_command");
-    },
-
-    isCommandEnabled: function II_cc_isCommandEnabled(aCommand) {
-      switch (aCommand) {
-        case "ics_inspector_inspect_event_command":
-          return gICSInspector.getSelectedEvent() != null;
-          break;
-        case "ics_inspector_inspect_task_command":
-          return gICSInspector.getSelectedTask() != null;
-          break;
-      }
-      return false;
-    },
-
-    doCommand: function II_cc_doCommand(aCommand) {
-      switch (aCommand) {
-        case "ics_inspector_inspect_event_command":
-          gICSInspector.inspectEvent();
-          break;
-        case "ics_inspector_inspect_task_command":
-          gICSInspector.inspectTask();
-          break;
+  _enableOrDisableItem: function II__enableOrDisableItem(id, expr) {
+    var el = document.getElementById(id);
+    if (el) {
+      if (expr) {
+        el.removeAttribute("disabled");
+      } else {
+        el.setAttribute("disabled", "true");
       }
     }
+  },
+
+  setupCalendarListContextMenu: function II_setupCalendarListContextMenu(event) {
+      var col = {};
+      var row = {};
+      var calendar;
+  
+      if (document.popupNode.localName == "tree") {
+          // Using VK_APPS to open the context menu will target the tree
+          // itself. In that case we won't have a client point even for
+          // opening the context menu. The "target" element should then be the
+          // selected element.
+          row.value =  calendarListTreeView.tree.currentIndex;
+          calendar = calendarListTreeView.mCalendarList[row.value];
+      } else {
+          // Using the mouse, the context menu will open on the treechildren
+          // element. Here we can use client points.
+          calendar = calendarListTreeView.getCalendarFromEvent(event, col, row);
+      }
+
+
+      gICSInspector._enableOrDisableItem("ics-inspector-inspect-calendar", calendar);
+  },
+
+  setupViewContextMenu: function II_setupViewContextMenu() {
+    var selectedItem = gICSInspector.getSelectedEvent();
+    gICSInspector._enableOrDisableItem("ics-inspector-inspect-event", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-event", selectedItem);
+    gICSInspector._enableOrDisableItem("ics-inspector-view-inspect-event", selectedItem);
+  },
+
+  setupTaskContextMenu: function II_setupTaskContextMenu() {
+    gICSInspector._enableOrDisableItem("ics-inspector-item-inspect-task",
+                                       gICSInspector.getSelectedTask());
+  },
+      
+
+  load: function II_load() {
+    window.removeEventListener("load", gICSInspector.load, false);
+
+    function addPSHandler(id, funcName) {
+      var popup = document.getElementById(id);
+      if (popup) {
+        popup.addEventListener("popupshowing",
+                               gICSInspector[funcName],
+                               false);
+      }
+    }
+
+    addPSHandler("context-menu", "setupViewContextMenu");
+    addPSHandler("calendar-item-context-menu", "setupViewContextMenu");
+    addPSHandler("calendar-view-context-menu", "setupViewContextMenu");
+    addPSHandler("taskitem-context-menu", "setupTaskContextMenu");
+    addPSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
+  },
+
+  unload: function II_unload() {
+    window.removeEventListener("unload", gICSInspector.unload, false);
+
+    function removePSHandler(id, funcName) {
+      var popup = document.getElementById(id);
+      if (popup) {
+        popup.addEventListener("popupshowing",
+                               gICSInspector[funcName],
+                               false);
+      }
+    }
+
+    removePSHandler("context-menu", "setupViewContextMenu");
+    removePSHandler("calendar-item-context-menu", "setupViewContextMenu");
+    removePSHandler("calendar-view-context-menu", "setupViewContextMenu");
+    removePSHandler("taskitem-context-menu", "setupTaskContextMenu");
+    removePSHandler("list-calendars-context-menu", "setupCalendarListContextMenu");
   }
 };
 
-
-
-
-window.addEventListener("load", function load_II() {
-    top.controllers.appendController(gICSInspector.command_controller);
-
-    document.getElementById("context-menu")
-            .addEventListener("popupshowing",
-                              gICSInspector.command_controller.updateCommands,
-                              false);
-    document.getElementById("taskitem-context-menu")
-            .addEventListener("popupshowing",
-                              gICSInspector.command_controller.updateCommands,
-                              false);
-}, false);
-
-window.addEventListener("unload", function II_unload() {
-    top.controllers.removeController(gICSInspector.command_controller);
-
-    document.getElementById("context-menu")
-            .removeEventListener("popupshowing",
-                                 gICSInspector.command_controller.updateCommands,
-                                 false);
-    document.getElementById("taskitem-context-menu")
-            .removeEventListener("popupshowing",
-                                 gICSInspector.command_controller.updateCommands,
-                                 false);
-}, false);
-  
+window.addEventListener("load", gICSInspector.load, false);
+window.addEventListener("unload", gICSInspector.unload, false);

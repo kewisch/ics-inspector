@@ -49,13 +49,22 @@
         persist="screenX screenY width height">
   <script type="application/x-javascript"><![CDATA[
     function II_load() {
-      var item = window.arguments[0];
+      var items = window.arguments[0];
       var sbs = Components.classes["@mozilla.org/intl/stringbundle;1"]
                           .getService(Components.interfaces.nsIStringBundleService);
       var props = sbs.createBundle("chrome://ics-inspector/locale/inspector.properties");
+      var textbox = document.getElementById('ics-inspector-textbox');
 
-      document.getElementById('ics-inspector-textbox').value = item.icalString;
-      document.title = props.formatStringFromName("ics-inspector.dialog.title", [item.title], 1);
+      if (items.length == 1) {
+        textbox.value = items[0].icalString;
+        document.title = props.formatStringFromName("ics-inspector.dialog.title", [items[0].title], 1);
+      } else {
+        var serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
+                                   .createInstance(Components.interfaces.calIIcsSerializer);
+        serializer.addItems(items, items.length);
+        textbox.value = serializer.serializeToString();
+        document.title = props.formatStringFromName("ics-inspector.dialog.title", [window.arguments[1]], 1);
+      }
     }
   ]]></script>
   
@@ -66,4 +75,3 @@
            readonly="true"
            wrap="off"/>
 </dialog>
-

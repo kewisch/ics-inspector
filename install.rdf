@@ -40,7 +40,7 @@
   <Description about="urn:mozilla:install-manifest">
 
     <em:id>{3dcf3762-4cda-4fd2-be13-13b9a10769fd}</em:id>
-    <em:version>0.1</em:version>
+    <em:version>0.2</em:version>
     <em:type>2</em:type>
 
     <!-- Target Application this extension can install into,
@@ -73,7 +73,7 @@
 
     <!-- Front End MetaData -->
     <em:name>ICS Inspector</em:name>
-    <em:description>Inspect ICS of Calendar items</em:description>
+    <em:description>Inspect ICS of calendar items</em:description>
     <em:creator>Philipp Kewisch</em:creator>
     <em:homepageURL>http://mozilla.kewis.ch/</em:homepageURL>
     <em:iconURL>chrome://ics-inspector/content/inspector.png</em:iconURL>
