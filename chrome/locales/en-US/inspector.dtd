@@ -11,7 +11,8 @@
 <!ENTITY ics-inspector.dialog.title "ICS Inspector">
 
 <!ENTITY jsEval.close "Close window on success">
-<!ENTITY jsEval.masterItem "Target Master Item">
+<!ENTITY jsEval.masterItem "Target master item">
+<!ENTITY jsEval.cached "Target cache layer">
 
 <!ENTITY ics-inspector.debug.tools.label "Calendar Debugging">
 <!ENTITY ics-inspector.debug.log.label "calendar.debug.log">

@@ -2,7 +2,7 @@
 <!-- This Source Code Form is subject to the terms of the Mozilla Public
    - License, v. 2.0. If a copy of the MPL was not distributed with this
    - file, You can obtain one at http://mozilla.org/MPL/2.0/.
-   - Portions Copyright (C) Philipp Kewisch, 2008 -->
+   - Portions Copyright (C) Philipp Kewisch, 2008-2014 -->
 
 <!DOCTYPE dialog SYSTEM "chrome://ics-inspector/locale/inspector.dtd">
 
@@ -14,71 +14,12 @@
         ondialogaccept="return cmdExec()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   
-  <script type="application/javascript" src="chrome://calendar/content/calUtils.js"/>
-  <script type="application/javascript" src="chrome://calendar/content/calendar-ui-utils.js"/>
-  <script type="application/javascript"><![CDATA[
-    function cmdExec() {
-      var shouldClose = document.getElementById("shouldClose").checked;
-      var js = document.getElementById("txfExprInput").value;
-      var thing = window.arguments[0].wrappedJSObject || window.arguments[0];
-      if (window.arguments[0] instanceof Components.interfaces.calIItemBase) {
-        var masterItem = document.getElementById("masterItem");
-        if (masterItem.checked) {
-          thing = thing.parentItem.wrappedJSObject || thing.parentItem;
-        }
-      }
-      var f = new Function("target", js);
-      try { 
-        var result = f(thing);
-        if (result !== undefined) {
-          alert(result);
-        }
-        return (shouldClose && (result === undefined || !!result));
-      } catch (e) {
-        return false;
-      }
-    }
-    function onkey(e) {
-      if (e.ctrlKey && e.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
-        document.getElementById("winEvalExpr").acceptDialog();
-        e.preventDefault();
-        e.stopPropagation();
-      }
-    }
-    function onload(e) {
-      var masterItem = document.getElementById("masterItem");
-      var thing = window.arguments[0];
-      var desc = document.getElementById("evalDesc");
-      if (thing instanceof Components.interfaces.calICalendar) {
-        masterItem.setAttribute("hidden", "true");
-        desc.textContent = calGetString("inspector",
-                                        "jsEval.calendar.desc",
-                                        null,
-                                        "ics-inspector");
-        window.title = calGetString("inspector",
-                                    "jsEval.calendar.title",
-                                    [thing.name],
-                                    "ics-inspector");
-      } else if (thing instanceof Components.interfaces.calIItemBase) {
-        setElementValue(masterItem, (thing.parentItem.recurrenceInfo == null) && "true", "hidden");
-        window.title = calGetString("inspector",
-                                    "jsEval.item.title",
-                                    [thing.title],
-                                    "ics-inspector");
-        desc.textContent = calGetString("inspector",
-                                        "jsEval.item.desc",
-                                        null,
-                                        "ics-inspector");
-                                        
-      }
-    }
-        
-  ]]></script>
-
+  <script type="application/javascript" src="chrome://ics-inspector/content/evalExprDialog.js"/>
   <vbox style="width: 350px;">
     <description id="evalDesc" for="txfExprInput"/>
-    <checkbox id="masterItem" label="&jsEval.masterItem;"/>
     <textbox id="txfExprInput" value="" multiline="true" rows="8" newlines="stripsurroundingwhitespace" onkeypress="onkey(event)"/>
+    <checkbox id="masterItem" label="&jsEval.masterItem;"/>
+    <checkbox id="targetCached" label="&jsEval.cached;" persist="checked"/>
     <checkbox id="shouldClose" label="&jsEval.close;" persist="checked" checked="true"/>
   </vbox>
 </dialog>
