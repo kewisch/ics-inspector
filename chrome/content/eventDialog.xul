@@ -10,38 +10,7 @@
 <overlay id="ics-inspector-event-dialog-overlay"
          xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
-    <script type="application/x-javascript"><![CDATA[
-        var gICSInspector = {
-            onLoad: function II_onLoad() {
-                window.removeEventListener("load", gICSInspector.onLoad, false);
-                
-                setTimeout(function() {
-                  // Do so on a timeout to make sure all event dialog load
-                  // handlers complete first.
-                  if (window.opener.gICSInspector.shouldOpenAlarmDialog) {
-                      window.opener.gICSInspector.shouldOpenAlarmDialog = false;
-                      var reminderList = document.getElementById("item-alarm");
-                      reminderList.value = "custom";
-                      updateReminder();
-                  }
-                }, 0);
-            },
-
-            showOriginalICS: function() {
-                let item = window.calendarItem;
-                let uri = "chrome://ics-inspector/content/inspector.xul";
-                window.openDialog(uri, item.hashId + "-orig", "chrome", [item]);
-            },
-
-            showCurrentICS: function() {
-                let item = saveItem();
-                let uri = "chrome://ics-inspector/content/inspector.xul";
-                window.openDialog(uri, item.hashId + "-current", "chrome", [item]);
-            }
-        };
-
-        window.addEventListener("load", gICSInspector.onLoad, false);
-    ]]></script>
+    <script type="application/javascript" src="chrome://ics-inspector/content/eventDialog.js"/>
 
     <row id="event-grid-alarm-row"
          ondblclick="document.getElementById('item-alarm').value = 'custom'; updateReminder();"/>

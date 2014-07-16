@@ -91,6 +91,12 @@ var gICSInspector = {
     modifyEventWithDialog(item, null, false);
   },
 
+  shouldOpenRecurDialog: false,
+  openRecurDialog: function II_openRecurDialog(item) {
+    gICSInspector.shouldOpenRecurDialog = true;
+    modifyEventWithDialog(item, null, false);
+  },
+
   resetLog: function II_resetLog() {
     var selectedCalendar = getSelectedCalendar().wrappedJSObject;
     if (selectedCalendar.supportsChangeLog) {

@@ -23,6 +23,9 @@
     <menuitem id="ics-inspector-item-alarmdialog"
               label="&ics-inspector.context.alarmdialog.label;"
               oncommand="gICSInspector.openAlarmDialog(gICSInspector.getPopupNodeItem())"/>
+    <menuitem id="ics-inspector-item-recurdialog"
+              label="&ics-inspector.context.recurdialog.label;"
+              oncommand="gICSInspector.openRecurDialog(gICSInspector.getPopupNodeItem())"/>
     <menuitem id="ics-inspector-item-revertException"
               label="&ics-inspector.context.revertException.label;"
               oncommand="gICSInspector.revertException(gICSInspector.getPopupNodeItem())"/>

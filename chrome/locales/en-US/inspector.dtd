@@ -8,6 +8,8 @@
 <!ENTITY ics-inspector.context.resetlog.label "Reset Changelog">
 <!ENTITY ics-inspector.context.revertException.label "Revert Exception">
 <!ENTITY ics-inspector.context.alarmdialog.label "Open Alarm Dialog">
+<!ENTITY ics-inspector.context.recurdialog.label "Open Recurrence Dialog">
+
 <!ENTITY ics-inspector.dialog.title "ICS Inspector">
 
 <!ENTITY jsEval.close "Close window on success">
