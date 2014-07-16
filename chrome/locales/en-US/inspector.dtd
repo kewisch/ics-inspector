@@ -13,6 +13,10 @@
 <!ENTITY ics-inspector.dialog.title "ICS Inspector">
 <!ENTITY ics-inspector.dialog.save.label "Save">
 <!ENTITY ics-inspector.dialog.close.label "Close">
+<!ENTITY ics-inspector.dialog.filemenu.label "File">
+<!ENTITY ics-inspector.dialog.filemenu.saveas.label "Save As...">
+<!ENTITY ics-inspector.dialog.filemenu.saveas.key "S">
+<!ENTITY ics-inspector.dialog.filemenu.saveas.modifiers "accel">
 
 <!ENTITY jsEval.close "Close window on success">
 <!ENTITY jsEval.masterItem "Target master item">

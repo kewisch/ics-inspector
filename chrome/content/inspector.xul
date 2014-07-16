@@ -21,6 +21,26 @@
         height="640"
         persist="screenX screenY width height">
   <script type="application/javascript" src="chrome://ics-inspector/content/inspector.js"/>
+  <toolbox id="ics-inspector-toolbox" mode="full" defaultmode="full">
+    <menubar id="ics-inspector-menubar">
+      <menu id="file-menu" label="&ics-inspector.dialog.filemenu.label;">
+        <menupopup id="file-menupopup">
+          <menuitem id="file-menu-saveas" label="&ics-inspector.dialog.filemenu.saveas.label;" key="ics-inspector-save-key" oncommand="document.getElementById('ics-inspector-save-key').doCommand()"/>
+          <menuitem id="file-menu-close" label="&ics-inspector.dialog.close.label;" oncommand="document.documentElement.getButton('cancel').doCommand()"/>
+        </menupopup>
+      </menu>
+    </menubar>
+  </toolbox>
+  <keyset id="ics-inspector-keyset">
+    <key id="ics-inspector-save-key"
+         modifiers="&ics-inspector.dialog.filemenu.saveas.modifiers;"
+         key="&ics-inspector.dialog.filemenu.saveas.key;"
+         oncommand="II_saveAs()"/>
+  </keyset>
+  <stringbundleset id="ics-inspector-strings-set">
+    <stringbundle id="ics-inspector-strings" src="chrome://ics-inspector/locale/inspector.properties"/>
+    <stringbundle id="calendar-strings" src="chrome://calendar/locale/calendar.properties"/>
+  </stringbundleset>
   <textbox id="ics-inspector-textbox"
            flex="1"
            multiline="true"

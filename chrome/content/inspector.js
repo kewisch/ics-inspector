@@ -3,14 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * Portions Copyright (C) Philipp Kewisch, 2008-2014 */
 
+Components.utils.import("resource://gre/modules/NetUtil.jsm");
+Components.utils.import("resource://gre/modules/FileUtils.jsm");
+
 var II_calendar, II_items;
 
 function II_load() {
   var items = window.arguments[0];
   var forceReadOnly = window.arguments[2];
-  var sbs = Components.classes["@mozilla.org/intl/stringbundle;1"]
-                      .getService(Components.interfaces.nsIStringBundleService);
-  var props = sbs.createBundle("chrome://ics-inspector/locale/inspector.properties");
   var textbox = document.getElementById('ics-inspector-textbox');
 
   II_items = {};
@@ -32,13 +32,15 @@ function II_load() {
 
   if (items.length == 1) {
     textbox.value = items[0].icalString;
-    document.title = props.formatStringFromName("ics-inspector.dialog.title", [items[0].title], 1);
+    document.title = document.getElementById("ics-inspector-strings")
+                             .getFormattedString("ics-inspector.dialog.title", [items[0].title]);
   } else {
     var serializer = Components.classes["@mozilla.org/calendar/ics-serializer;1"]
                                .createInstance(Components.interfaces.calIIcsSerializer);
     serializer.addItems(items, items.length);
     textbox.value = serializer.serializeToString();
-    document.title = props.formatStringFromName("ics-inspector.dialog.title", [window.arguments[1]], 1);
+    document.title = document.getElementById("ics-inspector-strings")
+                             .getFormattedString("ics-inspector.dialog.title", [window.arguments[1]]);
 
   }
 }
@@ -63,6 +65,26 @@ function II_saveItem() {
     II_calendar.modifyItem(item, oldItem, listener);
   }
   return false;
+}
+
+function II_saveAs() {
+  let textbox = document.getElementById('ics-inspector-textbox');
+  let nsIFilePicker = Components.interfaces.nsIFilePicker;
+  let fp = Components.classes["@mozilla.org/filepicker;1"].createInstance(nsIFilePicker);
+  let wildmat = "*.ics";
+  let fileType = document.getElementById("calendar-strings").getFormattedString("filterIcs", [wildmat]);
+
+  fp.appendFilter(fileType, wildmat);
+  fp.appendFilters(nsIFilePicker.filterAll);
+  fp.init(window, document.documentElement.getAttribute("buttonlabelaccept"), nsIFilePicker.modeSave);
+
+  if (fp.show() != nsIFilePicker.returnCancel) {
+    let ostream = FileUtils.openSafeFileOutputStream(fp.file);
+    let converter = Components.classes["@mozilla.org/intl/scriptableunicodeconverter"]
+                              .createInstance(Components.interfaces.nsIScriptableUnicodeConverter);
+    converter.charset = "UTF-8";
+    NetUtil.asyncCopy(converter.convertToInputStream(textbox.value), ostream);
+  }
 }
 
 function II_setReadOnly() {
