@@ -7,19 +7,28 @@
 <!DOCTYPE dialog SYSTEM "chrome://ics-inspector/locale/inspector.dtd">
 
 <?xml-stylesheet href="chrome://global/skin/"?>
+<?xml-stylesheet href="chrome://ics-inspector-vv/skin/widgets.css"?>
+<?xml-stylesheet href="chrome://ics-inspector-vv/skin/light-theme.css"?>
+<?xml-stylesheet href="chrome://ics-inspector/skin/evalExprDialog.css"?>
 
 <dialog id="winEvalExpr"
         title="Evaluate Expression"
         onload="onload(event)"
+        width="750"
+        height="500"
         ondialogaccept="return cmdExec()"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   
   <script type="application/javascript" src="chrome://ics-inspector/content/evalExprDialog.js"/>
-  <vbox style="width: 350px;">
-    <description id="evalDesc" for="txfExprInput"/>
-    <textbox id="txfExprInput" value="" multiline="true" rows="8" newlines="stripsurroundingwhitespace" onkeypress="onkey(event)"/>
-    <checkbox id="masterItem" label="&jsEval.masterItem;"/>
-    <checkbox id="targetCached" label="&jsEval.cached;" persist="checked"/>
-    <checkbox id="shouldClose" label="&jsEval.close;" persist="checked" checked="true"/>
-  </vbox>
+  <hbox flex="1">
+    <vbox id="evalBox" flex="1">
+      <description id="evalDesc" for="txfExprInput"/>
+      <textbox id="txfExprInput" class="theme-body" flex="1" value="" multiline="true" rows="8" newlines="stripsurroundingwhitespace" onkeypress="onkey(event)"/>
+      <checkbox id="masterItem" label="&jsEval.masterItem;"/>
+      <checkbox id="targetCached" label="&jsEval.cached;" persist="checked"/>
+      <checkbox id="shouldClose" label="&jsEval.close;" persist="checked"/>
+    </vbox>
+    <splitter><grippy/></splitter>
+    <vbox id="calendar-vview"></vbox>
+  </hbox>
 </dialog>

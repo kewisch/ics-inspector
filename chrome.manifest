@@ -2,6 +2,11 @@ content ics-inspector chrome/content/
 skin ics-inspector classic/1.0 chrome/skin/
 locale ics-inspector en-US chrome/locales/en-US/
 
+resource ics-inspector-vv variables-view/
+content ics-inspector-vv variables-view/content/
+skin ics-inspector-vv classic/1.0 variables-view/skin/
+locale ics-inspector-vv en-US variables-view/locales/en-US/
+
 overlay chrome://calendar/content/calendar-event-dialog.xul chrome://ics-inspector/content/eventDialog.xul
 overlay chrome://calendar/content/calendar-unifinder.xul chrome://ics-inspector/content/calendar-unifinder.xul
 overlay chrome://lightning/content/messenger-overlay-sidebar.xul chrome://ics-inspector/content/calendar.xul application={3550f703-e582-4d05-9a08-453d09bdfdc6}

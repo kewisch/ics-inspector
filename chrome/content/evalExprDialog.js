@@ -4,6 +4,7 @@
  * Portions Copyright (C) Philipp Kewisch, 2008-2014 */
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
+Components.utils.import("resource://ics-inspector-vv/modules/VariablesView.jsm");
 
 function cmdExec() {
   var shouldClose = document.getElementById("shouldClose").checked;
@@ -50,9 +51,23 @@ function onload(e) {
   var targetCached = document.getElementById("targetCached");
   var thing = window.arguments[0];
   var desc = document.getElementById("evalDesc");
+
+  // Set up variables view
+  let view = new VariablesView(document.getElementById("calendar-vview"));
+
   if (thing instanceof Components.interfaces.calICalendar) {
-    if (!thing.wrappedJSObject.mUncachedCalendar) {
+    if (thing.wrappedJSObject.mUncachedCalendar) {
+      view.addScope(getString("vview.cache"))
+          .addItem("", { enumerable: true })
+          .populate(thing.wrappedJSObject, { sorted: true });
+      view.addScope(getString("vview.uncached"))
+          .addItem("", { enumerable: true })
+          .populate(thing.wrappedJSObject.mUncachedCalendar.wrappedJSObject, { sorted: true });
+
+      view.getScopeAtIndex(1).expand();
+    } else {
       targetCached.setAttribute("hidden", "true");
+      view.rawObject = thing.wrappedJSObject;
     }
     masterItem.setAttribute("hidden", "true");
     desc.textContent = getString("calendar.desc");
@@ -61,6 +76,18 @@ function onload(e) {
     targetCached.setAttribute("hidden", "true");
     if (!thing.parentItem.recurrenceInfo) {
       masterItem.setAttribute("hidden", "true");
+    }
+
+    if (thing.parentItem == thing) {
+      view.rawObject = thing.wrappedJSObject;
+    } else {
+      view.addScope(getString("vview.item"))
+          .addItem("", { enumerable: true })
+          .populate(thing.wrappedJSObject, { sorted: true });
+      view.addScope(getString("vview.parentitem"))
+          .addItem("", { enumerable: true })
+          .populate(thing.parentItem.wrappedJSObject, { sorted: true });
+      view.getScopeAtIndex(0).expand();
     }
 
     document.title = getString("item.title", [thing.title]);
