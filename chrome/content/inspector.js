@@ -62,6 +62,7 @@ function II_saveItem() {
   parser.parseString(textbox.value);
   for each (let item in parser.getItems({})) {
     let oldItem = II_items[item.id];
+    item.calendar = oldItem.calendar;
     II_calendar.modifyItem(item, oldItem, listener);
   }
   return false;
