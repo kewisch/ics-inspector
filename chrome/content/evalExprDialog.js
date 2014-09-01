@@ -41,6 +41,11 @@ function onkey(e) {
 }
 
 function onload(e) {
+  function getString(x, p) cal.calGetString("inspector",
+                                            "jsEval." + x,
+                                            p,
+                                            "ics-inspector");
+
   var masterItem = document.getElementById("masterItem");
   var targetCached = document.getElementById("targetCached");
   var thing = window.arguments[0];
@@ -50,26 +55,15 @@ function onload(e) {
       targetCached.setAttribute("hidden", "true");
     }
     masterItem.setAttribute("hidden", "true");
-    desc.textContent = cal.calGetString("inspector",
-                                        "jsEval.calendar.desc",
-                                        null,
-                                        "ics-inspector");
-    document.title = cal.calGetString("inspector",
-                                     "jsEval.calendar.title",
-                                     [thing.name],
-                                     "ics-inspector");
+    desc.textContent = getString("calendar.desc");
+    document.title = getString("calendar.title", [thing.name]);
   } else if (thing instanceof Components.interfaces.calIItemBase) {
     targetCached.setAttribute("hidden", "true");
     if (!thing.parentItem.recurrenceInfo) {
       masterItem.setAttribute("hidden", "true");
     }
-    document.title = cal.calGetString("inspector",
-                                      "jsEval.item.title",
-                                      [thing.title],
-                                      "ics-inspector");
-    desc.textContent = cal.calGetString("inspector",
-                                        "jsEval.item.desc",
-                                        null,
-                                        "ics-inspector");
+
+    document.title = getString("item.title", [thing.title]);
+    desc.textContent = getString("item.desc");
   }
 }
