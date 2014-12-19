@@ -5,6 +5,7 @@
 
 Components.utils.import("resource://calendar/modules/calUtils.jsm");
 Components.utils.import("resource://gre/modules/Preferences.jsm");
+Components.utils.import("resource://gre/modules/Services.jsm");
 
 var gICSInspector = {
   getString: function II_getString(aStringName, aParams) {
@@ -193,6 +194,26 @@ var gICSInspector = {
     cal.setPref(pref, event.target.getAttribute("checked") == "true");
   },
 
+  setIcaljs: function II_setIcaljs(event) {
+    cal.setPref("calendar.icaljs", event.target.getAttribute("checked") == "true");
+    // a restart will be offered by the observer
+  },
+
+  restartApp: function II_restartApp() {
+    if (!Services.prompt.confirmEx(null,
+                                   gICSInspector.getString("ics-inspector.restart.title"),
+                                   gICSInspector.getString("ics-inspector.restart.description"),
+                                   Services.prompt.STD_YES_NO_BUTTONS,
+                                   null,
+                                   null,
+                                   null,
+                                   null,
+                                   {})) {
+            Services.startup.quit(Components.interfaces.nsIAppStartup.eRestart |
+                                  Components.interfaces.nsIAppStartup.eForceQuit);
+    }
+  },
+
   calendarListTreeView: {
     cycleCell: function cycleCell(aRow, aCol) {
       var calendar = this.getCalendar(aRow);
@@ -300,7 +321,7 @@ var gICSInspector = {
                       .getService(Components.interfaces.nsIPrefService);
     var branch = prefService.getBranch("")
                             .QueryInterface(Components.interfaces.nsIPrefBranch2);
-    branch.addObserver("calendar.debug.", gICSInspector, false);
+    branch.addObserver("calendar.", gICSInspector, false);
 
     function addPSHandler(id, funcName) {
       var popup = document.getElementById(id);
@@ -323,6 +344,9 @@ var gICSInspector = {
     if (Preferences.get("calendar.debug.log.verbose", false)) {
       document.getElementById("ics-inspector-debug-log-verbose").setAttribute("checked", "true");
     }
+    if (Preferences.get("calendar.icaljs", false)) {
+        document.getElementById("ics-inspector-icaljs").setAttribute("checked", "true");
+    }
 
     gICSInspector.loadCalendarListExtensions();
   },
@@ -335,7 +359,7 @@ var gICSInspector = {
                       .getService(Components.interfaces.nsIPrefService);
     var branch = prefService.getBranch("")
                             .QueryInterface(Components.interfaces.nsIPrefBranch2);
-    branch.removeObserver("calendar.debug.", gICSInspector, false);
+    branch.removeObserver("calendar.", gICSInspector, false);
 
     function removePSHandler(id, funcName) {
       var popup = document.getElementById(id);
@@ -369,6 +393,12 @@ var gICSInspector = {
             setElementValue("ics-inspector-debug-log-verbose",
                             Preferences.get("calendar.debug.log.verbose", false) && "true",
                             "checked");
+            break;
+          case "calendar.icaljs":
+              setElementValue("ics-inspector-icaljs",
+                      Preferences.get("calendar.icaljs", false) && "true",
+                      "checked");
+              gICSInspector.restartApp();
             break;
         }
         break;

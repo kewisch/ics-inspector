@@ -28,6 +28,8 @@
 <!ENTITY ics-inspector.debug.about.config.label "Config Editor...">
 <!ENTITY ics-inspector.debug.flushprefs.label "Save Preferences">
 
+<!ENTITY ics-inspector.icaljs.label "calendar.icaljs">
+
 <!ENTITY printDialog.groupbox.title "Debugging">
 
 <!ENTITY eventDialog.showOriginalICS.label "Show Original ICS...">

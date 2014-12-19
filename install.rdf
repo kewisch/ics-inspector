@@ -28,6 +28,7 @@
     <em:description>Adds various calendar debugging options</em:description>
     <em:creator>Philipp Kewisch</em:creator>
     <em:contributor>Mark James (http://www.famfamfam.com/lab/icons/silk/)</em:contributor>
+    <em:contributor>MakeMyDay</em:contributor>
     <em:homepageURL>http://mozilla.kewis.ch/</em:homepageURL>
     <em:iconURL>chrome://ics-inspector/content/inspector.png</em:iconURL>
   </Description>

@@ -83,6 +83,10 @@
                   type="checkbox"
                   oncommand="gICSInspector.setDebugLog(event, true)"
                   label="&ics-inspector.debug.log.verbose.label;"/>
+        <menuitem id="ics-inspector-icaljs"
+                  type="checkbox"
+                  oncommand="gICSInspector.setIcaljs(event)"
+                  label="&ics-inspector.icaljs.label;"/>
         <menuseparator id="ics-inspector-debug-menuseparator"/>
         <menuitem id="ics-inspector-about-config"
                   label="&ics-inspector.debug.about.config.label;"
