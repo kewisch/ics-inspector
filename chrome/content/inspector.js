@@ -93,3 +93,11 @@ function II_setReadOnly() {
   textbox.setAttribute("readonly", "true");
   document.documentElement.getButton("accept").setAttribute("hidden", "true");
 }
+
+function II_keypress(e) {
+  if ((e.ctrlKey || e.metaKey) && e.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
+    document.documentElement.acceptDialog();
+    e.preventDefault();
+    e.stopPropagation();
+  }
+}

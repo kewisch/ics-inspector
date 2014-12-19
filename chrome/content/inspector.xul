@@ -42,6 +42,7 @@
     <stringbundle id="calendar-strings" src="chrome://calendar/locale/calendar.properties"/>
   </stringbundleset>
   <textbox id="ics-inspector-textbox"
+           onkeypress="II_keypress(event)"
            flex="1"
            multiline="true"
            spellcheck="false"

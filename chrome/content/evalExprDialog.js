@@ -34,8 +34,12 @@ function cmdExec() {
 }
 
 function onkey(e) {
-  if (e.ctrlKey && e.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
-    document.getElementById("winEvalExpr").acceptDialog();
+  if ((e.ctrlKey || e.metaKey) && e.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_RETURN) {
+    document.documentElement.acceptDialog();
+    e.preventDefault();
+    e.stopPropagation();
+  } else if (e.keyCode == Components.interfaces.nsIDOMKeyEvent.DOM_VK_ESCAPE) {
+    document.documentElement.cancelDialog();
     e.preventDefault();
     e.stopPropagation();
   }
