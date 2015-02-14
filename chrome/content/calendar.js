@@ -250,6 +250,16 @@ var gICSInspector = {
       props.push(gICSInspector.calendarListTreeView.originals.getRowProperties.call(this, aRow));
       return props.join(" ");
     },
+
+    getCellText: function(aRow, aCol) {
+      let calendar = this.getCalendar(aRow);
+      if (aCol.element.getAttribute("anonid") == "type-treecol") {
+        return calendar.type;
+      }
+
+      let getCellText = gICSInspector.calendarListTreeView.originals.getCellText;
+      return getCellText.call(this, aRow, aCol);
+    }
   },
 
 
@@ -261,6 +271,7 @@ var gICSInspector = {
     let networkTreecol = createXULElement("treecol");
     let calendarnameTreecol = getCol("calendarname-treecol");
     let cacheTreecol = createXULElement("treecol");
+    let typeTreecol = createXULElement("treecol");
     let scrollbarSpacer = getCol("scrollbar-spacer");
 
     // Set up the dblclick handler
@@ -291,6 +302,13 @@ var gICSInspector = {
     cacheTreecol.setAttribute("ordinal", ++ordinal);
     statusTreecol.parentNode.insertBefore(cacheTreecol, statusTreecol);
 
+    // Add a column for the calendar type
+    typeTreecol.setAttribute("anonid", "type-treecol");
+    typeTreecol.setAttribute("hideheader", "true");
+    typeTreecol.setAttribute("label", gICSInspector.getString("calendarTree.column.type"));
+    typeTreecol.setAttribute("ordinal", ++ordinal);
+    statusTreecol.parentNode.insertBefore(typeTreecol, statusTreecol);
+
     // Set up the cycler on the readOnly column
     statusTreecol.setAttribute("label", gICSInspector.getString("calendarTree.column.status"));
     statusTreecol.setAttribute("cycler", "true");
@@ -303,6 +321,9 @@ var gICSInspector = {
     // Add labels for remaining columns
     getCol("checkbox-treecol").setAttribute("label", gICSInspector.getString("calendarTree.column.checkbox"));
     getCol("color-treecol").setAttribute("label", gICSInspector.getString("calendarTree.column.color"));
+
+    calendarnameTreecol.setAttribute("flex", "3");
+    typeTreecol.setAttribute("flex", "1");
 
     // Inject our view functions as defined in the object above
     let listView = gICSInspector.calendarListTreeView;
