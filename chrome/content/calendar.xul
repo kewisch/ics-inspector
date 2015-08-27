@@ -15,7 +15,7 @@
     <menuseparator id="ics-inspector-separator"/>
     <menuitem id="ics-inspector-item-inspect"
               label="&ics-inspector.context.inspect.label;"
-              oncommand="gICSInspector.inspectItem(gICSInspector.getPopupNodeItem())"/>
+              oncommand="gICSInspector.inspectItem(gICSInspector.getPopupNodeItem(), event)"/>
     <menuitem id="ics-inspector-item-eval"
               label="&ics-inspector.context.evaluate.label;"
               oncommand="gICSInspector.evaluateItem(gICSInspector.getPopupNodeItem())"/>
@@ -34,7 +34,7 @@
   <vbox id="agenda-menu-box">
     <menuitem id="ics-inspector-agenda-inspect"
               label="&ics-inspector.context.inspect.label;"
-              oncommand="gICSInspector.inspectItem(gICSInspector.getAgendaItem())"/>
+              oncommand="gICSInspector.inspectItem(gICSInspector.getAgendaItem(), event)"/>
     <menuitem id="ics-inspector-agenda-revertException"
               label="&ics-inspector.context.revertException.label;"
               oncommand="gICSInspector.revertException(gICSInspector.getAgendaItem())"/>
@@ -44,7 +44,7 @@
     <menuitem id="ics-inspector-task-inspect"
               label="&ics-inspector.context.inspect.label;"
               insertafter="task-context-menu-delete"
-              oncommand="gICSInspector.inspectItem(gICSInspector.getSelectedTask())"/>
+              oncommand="gICSInspector.inspectItem(gICSInspector.getSelectedTask(), event)"/>
     <menuitem id="ics-inspector-task-eval"
               label="&ics-inspector.context.evaluate.label;"
               oncommand="gICSInspector.evaluateItem(gICSInspector.getSelectedTask())"/>

@@ -18,10 +18,12 @@ var gICSInspector = {
               .savePrefFile(null);
   },
 
-  inspectItem: function(selectedItem) {
+  inspectItem: function(selectedItem, event) {
     if (selectedItem) {
-      var uri = "chrome://ics-inspector/content/inspector.xul";
-      window.openDialog(uri, selectedItem.hashId, "chrome", [selectedItem]);
+      let useMaster = event && (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey);
+      let item = useMaster ? selectedItem.parentItem : selectedItem;
+      let uri = "chrome://ics-inspector/content/inspector.xul";
+      window.openDialog(uri, item.hashId, "chrome", [item]);
     }
   },
 
